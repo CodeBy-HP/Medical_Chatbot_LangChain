@@ -1,0 +1,6 @@
+set venv 
+
+set requirements.txt
+install dependencies
+
+set setup.py
