@@ -1,6 +1,55 @@
-set venv 
+Medical Chatbot Development Flow
+=================================
 
-set requirements.txt
-install dependencies
+1. Project Setup
+   - Created virtual environment (venv)
+   - Set up requirements.txt
+   - Configured setup.py for package installation
 
-set setup.py
+2. Configuration & Environment
+   - Created src/config.py for centralized configuration management
+   - Set up .env for API keys (Pinecone, Gemini)
+   - Configured Pinecone index settings (dimension: 384, metric: cosine)
+
+3. Data Processing Pipeline
+   - Built src/helper.py with PDF loading, text splitting, and embeddings
+   - Created store_index.py to process medical documents and create vector store
+   - Implemented document chunking (500 chars, 20 overlap)
+
+4. LLM & Retrieval Setup
+   - Created src/prompt.py with medical assistant system prompt
+   - Integrated Google Gemini LLM (gemini-2.5-flash, temp: 0.3)
+   - Set up RAG chain with retriever (k=3, similarity search)
+
+5. Query Classification
+   - Built src/utility.py with QueryClassifier class
+   - Implemented pattern matching for greetings/simple queries
+   - Added medical keyword detection to avoid unnecessary retrieval
+
+6. Streaming Implementation
+   - Created StreamingHandler class in src/utility.py
+   - Implemented async token streaming from RAG chain
+   - Added character-by-character streaming for simple responses
+
+7. FastAPI Application
+   - Built app.py with FastAPI routes (GET /, POST /get)
+   - Integrated query classification → streaming → memory flow
+   - Added session management with UUID for each page load
+
+8. Conversation Memory
+   - Implemented session-based chat history storage
+   - Added conversation buffer (last 5 pairs = 10 messages)
+   - Created auto-cleanup on page reload to prevent memory leaks
+
+9. Frontend UI
+   - Created templates/index.html with Tailwind CSS
+   - Designed clean, minimal chatbot interface
+   - Implemented real-time streaming
+   - Added SSE (Server-Sent Events) handling for token streaming
+
+10. Deployment Preparation
+    - Created Dockerfile for containerization
+    - Set up docker-compose.yml for easy deployment
+    - Built .github/workflows/ci-cd.yml for GitHub Actions
+    - Created  README.md
+    - Configured .gitignore and .dockerignore
