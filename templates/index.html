@@ -58,11 +58,6 @@
                 </form>
             </div>
         </div>
-
-        <!-- Disclaimer -->
-        <div class="mt-4 text-center">
-            <p class="text-xs text-gray-500">⚕️ This information is educational and not a substitute for professional medical advice</p>
-        </div>
     </div>
 
     <script>
@@ -70,6 +65,9 @@
         const chatForm = document.getElementById('chatForm');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
+        
+        // Session ID for conversation memory (resets on page reload)
+        const sessionId = "{{ session_id }}";
 
         // Auto-scroll to bottom
         function scrollToBottom() {
@@ -173,9 +171,10 @@
             addLoadingIndicator();
 
             try {
-                // Send message to backend
+                // Send message to backend with session ID
                 const formData = new FormData();
                 formData.append('msg', message);
+                formData.append('session_id', sessionId);
 
                 const response = await fetch('/get', {
                     method: 'POST',
