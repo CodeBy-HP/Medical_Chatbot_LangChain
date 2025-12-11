@@ -135,7 +135,7 @@ async def chat(msg: str = Form(...), session_id: str = Form(...)):
                             full_answer = data["full_answer"]
             else:
                 # Stream simple response for greetings/acknowledgments
-                print(f"✗ [NO RETRIEVAL STREAM] Reason: {reason} | Query: {msg[:50]}...")
+                print(f"[NO RETRIEVAL STREAM] Reason: {reason} | Query: {msg[:50]}...")
                 simple_resp = QueryClassifier.get_simple_response(msg)
                 full_answer = simple_resp
                 

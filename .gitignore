@@ -34,13 +34,16 @@ wheels/
 *.egg
 MANIFEST
 
+# Jupyter Notebook
+.ipynb_checkpoints/
+research/
+*.ipynb
 
 # Data files (PDFs, datasets, etc.)
 data/
 *.pdf
 *.csv
 *.xlsx
-*.json
 *.pkl
 *.pickle
 
@@ -68,5 +71,13 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Project specific
+projectflow.txt
+template.sh
+
+# Docker
+.dockerignore
+docker-compose.override.yml
 
 
