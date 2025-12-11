@@ -1,13 +1,207 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  </head>
-  <body>
-    <h1 class="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chat-container { height: calc(100vh - 200px); }
+        .message { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-semibold text-gray-800 mb-2">Medical Assistant</h1>
+            <p class="text-gray-500 text-sm">Ask health-related questions and get evidence-based answers</p>
+        </header>
+
+        <!-- Chat Container -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div id="chatbox" class="chat-container overflow-y-auto p-6 space-y-4">
+                <div class="message flex gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-gray-700 text-sm leading-relaxed">Hello! I'm your medical assistant. I can help answer your health-related questions based on medical knowledge. How can I assist you today?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="border-t border-gray-200 p-4">
+                <form id="chatForm" class="flex gap-3">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Type your question here..." 
+                        class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        required
+                    >
+                    <button 
+                        type="submit" 
+                        id="sendBtn"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        Send
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="mt-4 text-center">
+            <p class="text-xs text-gray-500">⚕️ This information is educational and not a substitute for professional medical advice</p>
+        </div>
+    </div>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const chatForm = document.getElementById('chatForm');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // Auto-scroll to bottom
+        function scrollToBottom() {
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        // Add user message to chat
+        function addUserMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message flex gap-3 justify-end';
+            messageDiv.innerHTML = `
+                <div class="flex-1 max-w-2xl">
+                    <div class="bg-blue-600 text-white px-4 py-3 rounded-lg text-sm leading-relaxed">
+                        ${escapeHtml(message)}
+                    </div>
+                </div>
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+            `;
+            chatbox.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Add bot message to chat
+        function addBotMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message flex gap-3';
+            messageDiv.innerHTML = `
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1 max-w-2xl">
+                    <div class="bg-gray-100 px-4 py-3 rounded-lg text-sm leading-relaxed text-gray-700">
+                        ${escapeHtml(message)}
+                    </div>
+                </div>
+            `;
+            chatbox.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Add loading indicator
+        function addLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loading';
+            loadingDiv.className = 'message flex gap-3';
+            loadingDiv.innerHTML = `
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-gray-100 px-4 py-3 rounded-lg text-sm">
+                        <div class="flex gap-1">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatbox.appendChild(loadingDiv);
+            scrollToBottom();
+        }
+
+        function removeLoadingIndicator() {
+            const loading = document.getElementById('loading');
+            if (loading) loading.remove();
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Handle form submission
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Disable input while processing
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+
+            // Add user message
+            addUserMessage(message);
+            messageInput.value = '';
+
+            // Show loading indicator
+            addLoadingIndicator();
+
+            try {
+                // Send message to backend
+                const formData = new FormData();
+                formData.append('msg', message);
+
+                const response = await fetch('/get', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                // Remove loading and add bot response
+                removeLoadingIndicator();
+                addBotMessage(data.response || 'Sorry, I could not process that.');
+            } catch (error) {
+                removeLoadingIndicator();
+                addBotMessage('Sorry, there was an error processing your request. Please try again.');
+                console.error('Error:', error);
+            } finally {
+                // Re-enable input
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send';
+                messageInput.focus();
+            }
+        });
+
+        // Focus input on load
+        messageInput.focus();
+    </script>
+</body>
 </html>

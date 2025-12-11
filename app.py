@@ -66,11 +66,27 @@ print("Vector Store connected")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    pass
+    """Render the chatbot interface"""
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.post("/get")
+@app.post("/get", response_class=JSONResponse)
 async def chat(msg: str = Form(...)):
-    pass
+    """Handle chat messages and return AI responses"""
+    try:
+        # Invoke the RAG chain with the user's message
+        response = rag_chain.invoke({"input": msg})
+        
+        # Extract the answer from the response
+        answer = response.get("answer", "I'm sorry, I couldn't process your request.")
+        
+        return JSONResponse(content={"response": answer})
+    
+    except Exception as e:
+        print(f"Error processing message: {str(e)}")
+        return JSONResponse(
+            content={"response": "I apologize, but I encountered an error. Please try again."},
+            status_code=500
+        )
 
 if __name__ == '__main__':
     import uvicorn
