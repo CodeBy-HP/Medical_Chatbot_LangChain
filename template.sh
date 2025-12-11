@@ -1,16 +1,26 @@
-# Creating the Dir
+# Creating directories
 mkdir -p src
-mkdir -p research
+mkdir -p templates
+mkdir -p data
 
-# Creating the files
+# Creating source files
 touch src/__init__.py
+touch src/config.py
 touch src/helper.py
 touch src/prompt.py
-touch .env
-touch setup.py
+touch src/utility.py
+
+# Creating main files
 touch app.py
-touch README.py
-touch research/trials.ipynb
+touch store_index.py
+touch setup.py
 touch requirements.txt
 
-echo "Directory and Files created sucessfully"
+# Creating template files
+touch templates/index.html
+
+# Creating config files
+touch .env
+touch .gitignore
+
+echo "Directory and files created successfully"
