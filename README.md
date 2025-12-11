@@ -51,9 +51,9 @@ Production-ready medical chatbot combining **Retrieval-Augmented Generation (RAG
 
 ## 🛠️ Tech Stack
 
-**Backend:** FastAPI, LangChain, Google Gemini, Pinecone
-**Frontend:** Jinja2, Tailwind CSS 
-**DevOps:** Docker, GitHub Actions, AWS (EC2, ECR)
+- **Backend:** FastAPI, LangChain, Google Gemini, Pinecone
+- **Frontend:** Jinja2, Tailwind CSS 
+- **DevOps:** Docker, GitHub Actions, AWS (EC2, ECR)
 
 ---
 
@@ -89,7 +89,7 @@ Includes local setup, Docker deployment, AWS deployment, and CI/CD configuration
 
 **Harsh Patel**  
 📧 code.by.hp@gmail.com  
-🔗 [GitHub](https://github.com/CodeBy-HP) • [LinkedIn](https://www.linkedin.com/in/yourprofile)
+🔗 [GitHub](https://github.com/CodeBy-HP) • [LinkedIn](https://www.linkedin.com/in/harsh-patel-389593292/)
 
 ---
 
