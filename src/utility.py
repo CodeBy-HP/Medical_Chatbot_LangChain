@@ -169,3 +169,61 @@ class QueryClassifier:
             "I'm here to help with medical and health-related questions. "
             "Could you please elaborate on what you'd like to know?"
         )
+
+
+class StreamingHandler:
+    """Handle streaming responses from LangChain"""
+
+    @staticmethod
+    async def stream_rag_response(rag_chain, input_data: dict):
+        """
+        Stream tokens from RAG chain
+        
+        Args:
+            rag_chain: The retrieval chain to stream from
+            input_data: Dict with 'input' and 'chat_history' keys
+            
+        Yields:
+            str: JSON formatted chunks with token data
+        """
+        import json
+        
+        try:
+            # Stream the response
+            full_answer = ""
+            async for chunk in rag_chain.astream(input_data):
+                # Extract answer tokens from the chunk
+                if "answer" in chunk:
+                    token = chunk["answer"]
+                    full_answer += token
+                    # Send token as JSON
+                    yield f"data: {json.dumps({'token': token, 'done': False})}\n\n"
+            
+            # Send completion signal
+            yield f"data: {json.dumps({'token': '', 'done': True, 'full_answer': full_answer})}\n\n"
+            
+        except Exception as e:
+            error_msg = f"Streaming error: {str(e)}"
+            yield f"data: {json.dumps({'error': error_msg, 'done': True})}\n\n"
+
+    @staticmethod
+    async def stream_simple_response(response: str):
+        """
+        Stream a simple non-retrieval response character by character
+        
+        Args:
+            response: The complete response text
+            
+        Yields:
+            str: JSON formatted chunks with token data
+        """
+        import json
+        import asyncio
+        
+        # Stream character by character with slight delay for smooth effect
+        for char in response:
+            yield f"data: {json.dumps({'token': char, 'done': False})}\n\n"
+            await asyncio.sleep(0.01)  # Small delay for smooth streaming
+        
+        # Send completion signal
+        yield f"data: {json.dumps({'token': '', 'done': True, 'full_answer': response})}\n\n"

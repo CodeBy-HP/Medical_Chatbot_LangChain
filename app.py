@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from langchain_pinecone import PineconeVectorStore
 from src.config import Config
 from src.helper import download_embeddings
-from src.utility_functions import QueryClassifier
+from src.utility import QueryClassifier, StreamingHandler
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
@@ -104,43 +104,65 @@ async def index(request: Request):
     )
 
 
-@app.post("/get", response_class=JSONResponse)
+@app.post("/get")
 async def chat(msg: str = Form(...), session_id: str = Form(...)):
-    """Handle chat messages and return AI responses with conversation memory"""
-    try:
-        # Get chat history for this session
-        history = get_chat_history(session_id)
+    """Handle chat messages and return streaming AI responses with conversation memory"""
+    
+    # Get chat history for this session
+    history = get_chat_history(session_id)
 
-        # Classify query to determine if retrieval is needed
-        needs_retrieval, reason = QueryClassifier.needs_retrieval(msg)
+    # Classify query to determine if retrieval is needed
+    needs_retrieval, reason = QueryClassifier.needs_retrieval(msg)
 
-        if needs_retrieval:
-            # Use RAG chain for medical queries that need retrieval
-            response = rag_chain.invoke({"input": msg, "chat_history": history.messages})
-            answer = response.get("answer", "I'm sorry, I couldn't process your request.")
-            print(f"✓ [RETRIEVAL] Reason: {reason} | Query: {msg[:50]}...")
-        else:
-            # Use simple response for greetings/acknowledgments
-            answer = QueryClassifier.get_simple_response(msg)
-            print(f"✗ [NO RETRIEVAL] Reason: {reason} | Query: {msg[:50]}...")
+    async def generate_response():
+        """Generator for streaming response"""
+        full_answer = ""
+        
+        try:
+            if needs_retrieval:
+                # Stream RAG chain response for medical queries
+                print(f"✓ [RETRIEVAL STREAM] Reason: {reason} | Query: {msg[:50]}...")
+                
+                async for chunk in StreamingHandler.stream_rag_response(
+                    rag_chain, {"input": msg, "chat_history": history.messages}
+                ):
+                    yield chunk
+                    # Extract full answer from the last chunk
+                    if b'"done": true' in chunk.encode():
+                        import json
+                        data = json.loads(chunk.replace("data: ", "").strip())
+                        if "full_answer" in data:
+                            full_answer = data["full_answer"]
+            else:
+                # Stream simple response for greetings/acknowledgments
+                print(f"✗ [NO RETRIEVAL STREAM] Reason: {reason} | Query: {msg[:50]}...")
+                simple_resp = QueryClassifier.get_simple_response(msg)
+                full_answer = simple_resp
+                
+                async for chunk in StreamingHandler.stream_simple_response(simple_resp):
+                    yield chunk
+            
+            # Add the conversation to history after streaming completes
+            history.add_user_message(msg)
+            history.add_ai_message(full_answer)
+            
+            # Manage memory window
+            manage_memory_window(session_id, max_messages=10)
+            
+        except Exception as e:
+            print(f"Error during streaming: {str(e)}")
+            import json
+            yield f"data: {json.dumps({'error': 'An error occurred', 'done': True})}\n\n"
 
-        # Add the conversation to history
-        history.add_user_message(msg)
-        history.add_ai_message(answer)
-
-        # Manage memory window to keep only last 5 conversation pairs (10 messages)
-        manage_memory_window(session_id, max_messages=10)
-
-        return JSONResponse(content={"response": answer})
-
-    except Exception as e:
-        print(f"Error processing message: {str(e)}")
-        return JSONResponse(
-            content={
-                "response": "I apologize, but I encountered an error. Please try again."
-            },
-            status_code=500,
-        )
+    return StreamingResponse(
+        generate_response(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 
 if __name__ == "__main__":
