@@ -18,6 +18,11 @@
 Production-ready medical chatbot combining **Retrieval-Augmented Generation (RAG)** with real-time streaming, intelligent query classification, and automated CI/CD deployment.
 
 ---
+## 🌈 User Interface
+
+<img width="1414" height="756" alt="Screenshot 2025-12-12 083510" src="https://github.com/user-attachments/assets/04fa1dad-e428-4cf2-a993-73d66ce812e5" />
+
+---
 
 ## ✨ Key Features
 
