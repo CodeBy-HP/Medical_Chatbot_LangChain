@@ -75,6 +75,20 @@ Production-ready medical chatbot combining **Retrieval-Augmented Generation (RAG
 
 ---
 
+## 🌈 Architecture and Workflow Diagrams
+
+<div align="center">
+
+<img width="1361" height="753" alt="Screenshot 2025-12-12 082126" src="https://github.com/user-attachments/assets/e482ed2c-08e9-4b74-a076-41abbe5da50c" />
+
+<img width="953" height="806" alt="Screenshot 2025-12-12 082207" src="https://github.com/user-attachments/assets/644fb50a-8c8d-41b1-9a12-3239c13dee74" />
+
+<img width="475" height="841" alt="Screenshot 2025-12-12 082249" src="https://github.com/user-attachments/assets/5975b3e8-2aee-4420-ba85-dd8f2dbc553f" />
+
+</div>
+
+---
+
 ## 🚀 Setup & Deployment
 
 **Want to run this project?**
