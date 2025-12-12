@@ -1,72 +1,72 @@
-name: Deploy Application Docker Image to EC2 instance
+# name: Deploy Application Docker Image to EC2 instance
 
-on:
-  push:
-    branches: [main]
+# on:
+#   push:
+#     branches: [main]
 
 
-jobs:
-  Continuous-Integration:
-    runs-on: ubuntu-latest
+# jobs:
+#   Continuous-Integration:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          mask-password: 'true'
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v2
+#         with:
+#           mask-password: 'true'
 
-      - name: Build and push image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPO }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+#       - name: Build and push image to ECR
+#         env:
+#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#           ECR_REPOSITORY: ${{ secrets.ECR_REPO }}
+#         run: |
+#           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+#           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-  Continuous-Deployment:
-    needs: Continuous-Integration
-    runs-on: self-hosted
+#   Continuous-Deployment:
+#     needs: Continuous-Integration
+#     runs-on: self-hosted
 
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+#     steps:
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          mask-password: 'true'
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v2
+#         with:
+#           mask-password: 'true'
 
-      - name: Stop and remove old container
-        run: |
-          docker stop medical-chatbot || true
-          docker rm medical-chatbot || true
+#       - name: Stop and remove old container
+#         run: |
+#           docker stop medical-chatbot || true
+#           docker rm medical-chatbot || true
 
-      - name: Pull and run new container
-        run: |
-          docker pull "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
-          docker run -d \
-            --name medical-chatbot \
-            --restart unless-stopped \
-            -e PINECONE_API_KEY="${{ secrets.PINECONE_API_KEY }}" \
-            -e GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
-            -p 8080:8080 \
-            "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
+#       - name: Pull and run new container
+#         run: |
+#           docker pull "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
+#           docker run -d \
+#             --name medical-chatbot \
+#             --restart unless-stopped \
+#             -e PINECONE_API_KEY="${{ secrets.PINECONE_API_KEY }}" \
+#             -e GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
+#             -p 8080:8080 \
+#             "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
 
-      - name: Clean up unused images
-        run: docker image prune -af
+#       - name: Clean up unused images
+#         run: docker image prune -af
