@@ -23,6 +23,11 @@ Production-ready medical chatbot combining **Retrieval-Augmented Generation (RAG
 <img width="1414" height="756" alt="Screenshot 2025-12-12 083510" src="https://github.com/user-attachments/assets/04fa1dad-e428-4cf2-a993-73d66ce812e5" />
 
 ---
+## 🌈 Video Demo
+
+https://github.com/user-attachments/assets/3598672f-8794-4d98-9d42-d6b1bcb0c8d9
+
+---
 
 ## ✨ Key Features
 
