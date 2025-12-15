@@ -169,6 +169,6 @@ if __name__ == "__main__":
     import uvicorn
     import os
 
-    # Render uses the PORT environment variable
-    port = int(os.getenv("PORT", 8080))
+    # Use PORT from environment (7860 for HF Spaces, 8080 for Render)
+    port = int(os.getenv("PORT", 7860))
     uvicorn.run(app, host="0.0.0.0", port=port)
