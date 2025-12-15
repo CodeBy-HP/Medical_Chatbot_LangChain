@@ -12,8 +12,8 @@ class Config:
 
     # Pinecone Configuration
     PINECONE_INDEX_NAME = "medical-chatbot"
-    PINECONE_CLOUD = "aws"
-    PINECONE_REGION = "us-east-1"
+    PINECONE_CLOUD = "aws"  
+    PINECONE_REGION = "us-east-1" 
     PINECONE_METRIC = "cosine"
     PINECONE_DIMENSION = 384
 

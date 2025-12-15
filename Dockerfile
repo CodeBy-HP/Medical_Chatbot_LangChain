@@ -12,6 +12,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
-EXPOSE 8080
+EXPOSE ${PORT:-8080}
 
 CMD ["python", "app.py"]
